@@ -1,0 +1,99 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+{% load bootstrap5 %}
+
+{% block content %}
+    <article class="d-flex gap-3 flex-column">
+        {% include 'layouts/question.html' %}
+
+        {% if answers %}
+            <div class="border-bottom my-2"></div>
+            <div class="answers-list">
+                {% for answer, user_vote in answers_with_votes %}
+                    <div id="answer-{{ answer.id }}" class="answer-item">
+                        {% include 'layouts/answer.html' with user_vote=user_vote %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div class="border-bottom my-2"></div>
+        {% if user.is_authenticated %}
+            <form method="POST">
+                {% csrf_token %}
+                {% bootstrap_form form %}
+                <button type="submit" class="btn btn-primary mb-3">Answer</button>
+            </form>
+        {% endif %}
+        {% include 'layouts/pagination.html' %}
+    </article>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/centrifuge@5.0.0/dist/centrifuge.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const CENTRIFUGO_URL = "{{ ws_url }}";
+    const centrifuge = new Centrifuge(`ws://${CENTRIFUGO_URL}/connection/websocket`, {
+        token: "{{ centrifugo_token }}"
+    });
+
+    centrifuge.on('connect', function(ctx) {
+        console.log("Connected to Centrifugo", ctx);
+    });
+    
+    centrifuge.on('disconnect', function(ctx) {
+        console.log("Disconnected from Centrifugo", ctx);
+    });
+    
+    const questionId = "{{ question.id }}";
+    const sub = centrifuge.newSubscription(`question_${questionId}`);
+    
+    sub.on('publication', function(ctx) {
+        const data = ctx.data;
+        const newAnswer = document.createElement('div');
+        newAnswer.id = `answer-${data.answer.id}`;
+        const avatarUrl = data.answer.author_avatar;
+        newAnswer.innerHTML = `
+            <div class="card mb-3 answer-card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-1 text-center">
+                            <img src="${avatarUrl}" 
+                                    width="50" alt="Author's avatar" class="mb-2">
+                            <div class="voting-buttons d-flex flex-column align-items-center">
+                                <button class="btn btn-vote btn-like"
+                                        data-answer-id="${data.answer.id}"
+                                        data-value="1"
+                                        title="Like this answer">
+                                    <i class="bi bi-caret-up-fill"></i>
+                                </button>
+                                <div class="rating-value my-1" data-rating-id="${data.answer.id}">
+                                    ${data.answer.rating || 0}
+                                </div>
+                                <button class="btn btn-vote btn-dislike"
+                                        data-answer-id="${data.answer.id}"
+                                        data-value="-1"
+                                        title="Dislike this answer">
+                                    <i class="bi bi-caret-down-fill"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col d-flex flex-column justify-content-between">
+                            <div class="answer-text">
+                                <p class="card-text">${data.answer.text}</p>
+                            </div>
+                            ${data.answer.is_correct ? 
+                                '<div class="correct-badge mt-2"><span class="badge bg-success"><i class="bi bi-check-lg"></i> Correct Answer</span></div>' : ''}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    sub.subscribe();
+    centrifuge.connect();
+});
+</script>
+{% endblock %}

@@ -1,0 +1,57 @@
+{% load static %}
+
+<div class="card mb-3 answer-card">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-1 text-center">
+                {% if answer.author.avatar %}
+                    <img src="{{ answer.author.avatar.url }}" width="50" alt="Author's avatar" class="mb-2">
+                {% endif %}
+
+                <div class="voting-buttons d-flex flex-column align-items-center">
+                    <button class="btn btn-vote btn-like {% if user_vote == 1 %}active{% endif %}"
+                            data-answer-id="{{ answer.id }}"
+                            data-value="1"
+                            title="Like this answer">
+                        <i class="bi bi-caret-up-fill"></i>
+                    </button>
+
+                    <div class="rating-value my-1" data-rating-id="{{ answer.id }}">
+                        {{ answer.rating }}
+                    </div>
+
+                    <button class="btn btn-vote btn-dislike {% if user_vote == -1 %}active{% endif %}"
+                            data-answer-id="{{ answer.id }}"
+                            data-value="-1"
+                            title="Dislike this answer">
+                        <i class="bi bi-caret-down-fill"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="col d-flex flex-column justify-content-between">
+                <div class="answer-text">
+                    <p class="card-text">{{ answer.text }}</p>
+                </div>
+
+                {% if request.user.profile == question.author %}
+                <div class="correct-answer mt-2">
+                    <div class="form-check">
+                        <input class="form-check-input mark-correct-checkbox"
+                               type="checkbox"
+                               data-answer-id="{{ answer.id }}"
+                               {% if answer.is_correct %}checked{% endif %}>
+                        <label class="form-check-label">Correct answer</label>
+                    </div>
+                </div>
+                {% elif answer.is_correct %}
+                <div class="correct-badge mt-2">
+                    <span class="badge bg-success">
+                        <i class="bi bi-check-lg"></i> Correct Answer
+                    </span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>

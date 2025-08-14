@@ -1,0 +1,16 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+{% load bootstrap5 %}
+
+{% block content %}
+<div class="row">
+    <div class="col-6">
+        <h1>Registration</h1>
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            {% bootstrap_form form %}
+            <button type="submit" class="btn btn-primary mb-3">Register</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

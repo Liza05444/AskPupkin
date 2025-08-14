@@ -1,0 +1,12 @@
+<section class="mb-3">
+    <h3>Popular tags</h3>
+    <div>
+        {% for tag in tags %}
+            <div class="mb-1">
+                <a href="{% url 'tag' tag.name %}"
+                    class="badge rounded-pill text-bg-primary text-decoration-none">{{ tag.name }}
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+</section>

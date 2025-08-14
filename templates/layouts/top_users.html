@@ -1,0 +1,12 @@
+<section>
+    <h3>Best members</h3>
+    <div>
+        {% for user in users %}
+            <div class="mb-1">
+                <span class="d-inline-block badge rounded-pill text-bg-primary text-decoration-none text-truncate">
+                    {{ user.username }}
+                </span>
+            </div>
+        {% endfor %}
+    </div>
+</section>

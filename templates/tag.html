@@ -1,0 +1,14 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block content %}
+    <div class="d-flex align-items-center gap-4 mb-4">
+        <h1>Tag: {{ tag }}</h1>
+    </div>
+    <article class="d-flex gap-3 flex-column">
+        {% for question, user_vote in questions_with_votes %}
+            {% include 'layouts/question.html' with question=question user_vote=user_vote %}
+        {% endfor %}
+        {% include 'layouts/pagination.html' %}
+    </article>
+{% endblock %}

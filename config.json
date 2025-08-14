@@ -1,0 +1,24 @@
+{
+  "client": {
+    "token": {
+      "hmac_secret_key": "secret"
+    },
+    "allowed_origins": ["*"]
+  },
+  "admin": {
+    "enabled": true,
+    "password": "password",
+    "secret": "8fWytbZ5zBN7neqsgcKk3QmzzBln6lA-BiH5NN9F_5hFXZ993gaAz-3gybbiRKizsBt4Edo2jfhhh3RAw_1F_g"
+  },
+  "http_api": {
+    "key": "secret"
+  },
+  "channel": {
+    "without_namespace": {
+      "allow_subscribe_for_client": true
+    }
+  },
+  "http_server": {
+    "port": 8001
+  }
+}

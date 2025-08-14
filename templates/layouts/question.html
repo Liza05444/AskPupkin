@@ -1,0 +1,62 @@
+{% load static %}
+
+<div class="card mb-1">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-1 text-center">
+                {% if question.author.avatar %}
+                    <img src="{{ question.author.avatar.url }}" width="50" alt="Author's avatar" class="mb-2">
+                {% endif %}
+
+                <div class="voting-buttons d-flex flex-column align-items-center">
+                    <button class="btn btn-vote btn-like {% if user_vote == 1 %}active{% endif %}"
+                            data-question-id="{{ question.id }}"
+                            data-value="1"
+                            title="Like this question">
+                        <i class="bi bi-caret-up-fill"></i>
+                    </button>
+
+                    <div class="rating-value my-1" data-rating-id="{{ question.id }}">
+                        {{ question.rating }}
+                    </div>
+
+                    <button class="btn btn-vote btn-dislike {% if user_vote == -1 %}active{% endif %}"
+                            data-question-id="{{ question.id }}"
+                            data-value="-1"
+                            title="Dislike this question">
+                        <i class="bi bi-caret-down-fill"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="col d-flex flex-column justify-content-between">
+                <div>
+                    <h5 class="card-title">
+                        <a href="{% url 'question' question.id %}" class="text-decoration-none text-dark">
+                            {{ question.title }}
+                        </a>
+                    </h5>
+                    <p class="card-text">{{ question.text }}</p>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col">
+                        <a href="{% url 'question' question.id %}" class="text-decoration-none">
+                            <i class="bi bi-chat-left-text"></i>
+                            {{ question.answers.count }} answers
+                        </a>
+                    </div>
+                    <div class="col-6 text-end">
+                        <div class="tags">
+                            {% for tag in question.tags.all %}
+                                <a href="{% url 'tag' tag %}"
+                                   class="badge rounded-pill text-bg-primary text-decoration-none">{{ tag }}
+                                </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

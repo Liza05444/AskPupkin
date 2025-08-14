@@ -1,0 +1,124 @@
+<!doctype html>
+{% load static %}
+{% load sidebar %}
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>AskPupkin</title>
+    <link href="{% static 'css/bootstrap.css' %}" rel="stylesheet" />
+    <link href="{% static 'css/my-styles.css' %}" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
+</head>
+
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg bg-body-tertiary">
+            <div class="container">
+                <div class="d-flex gap-2 align-items-center">
+                    <a href="{% url 'index' %}"><img src="{% static 'images/logo.png' %}" width="40" alt="..."></a>
+                    <a class="navbar-brand" href="{% url 'index' %}">AskPupkin</a>
+                </div>
+
+                <div class="search-container" style="min-width: 400px;">
+                    <input class="form-control" 
+                           type="search" 
+                           id="search-input" 
+                           placeholder="Search questions..." 
+                           aria-label="Search">
+                    <div class="dropdown-menu w-20 p-0" id="search-results"></div>
+                </div>
+
+                <a href="{% url 'ask' %}" class="btn btn-primary">Ask!</a>
+
+                <div class="d-flex gap-2 align-items-center">
+                    {% if user.profile.avatar %}
+                        <div>
+                            <img src="{{ user.profile.avatar.url }}" width="40" alt="Current avatar">
+                        </div>
+                    {% endif %}
+                    <div class="content">
+                        {% if user.is_authenticated %}
+                            <div class="content__name">{{ user.username }}</div>
+                            <div class="content__links">
+                                <a href="{% url 'profile_edit' %}">Settings</a>
+                                <a href="{% url 'logout' %}">Log out</a>
+                            </div>
+                        {% else %}
+                            <a href="{% url 'login' %}">Log in</a>
+                            <a href="{% url 'signup' %}">Register</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mt-2">
+        <div class="row">
+            <section class="col">
+                {% block content %}
+                {% endblock %}
+            </section>
+
+            <aside class="col-3 mt-2">
+                {% popular_tags %}
+                {% top_users %}
+            </aside>
+        </div>
+    </main>
+
+    <footer class="footer py-3 bg-light">
+        <div class="container">
+            <span class="text-muted d-flex justify-content-center">© 2025 AskPupkin</span>
+        </div>
+    </footer>
+
+    <script src="{% static 'js/bootstrap.bundle.js' %}"></script>
+    <script src="{% static 'js/AJAX.js' %}"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('search-input');
+        const searchResults = document.getElementById('search-results');
+        let timeoutId = null;
+        searchInput.addEventListener('input', function(e) {
+            const query = e.target.value.trim();
+            clearTimeout(timeoutId);
+            if (query.length < 3) {
+                searchResults.style.display = 'none';
+                return;
+            }
+            timeoutId = setTimeout(() => {
+                fetch(`/search/?q=${encodeURIComponent(query)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.results) {
+                            searchResults.innerHTML = data.results.map(result => `
+                                <a href="${result.url}" class="dropdown-item">
+                                    <div class="fw-bold">${result.title}</div>
+                                    <small class="text-muted">${result.content}</small>
+                                </a>
+                            `).join('');
+                            searchResults.style.display = 'block';
+                        } else {
+                            searchResults.style.display = 'none';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Search error:', error);
+                        searchResults.style.display = 'none';
+                    });
+            }, 300);
+        });
+        document.addEventListener('click', function(e) {
+            if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+                searchResults.style.display = 'none';
+            }
+        });
+    });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+
+</html>
